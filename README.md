@@ -19,7 +19,7 @@ To play Watchpoint, you will need:
 
 1. Download the latest Watchpoint ROM from the Releases page and copy it to your EverDrive’s microSD card.
 2. Connect the EverDrive to your PC via USB.
-3. Clone this repository and register the MCP server (`mcp/server.py`) with your preferred LLM client.
+3. Clone this repository and register the MCP server (`src/watchpoint/mcp/server.py`) with your preferred LLM client.
 4. Boot the ROM on your N64.
 
 Once running, you control the in-game camera using the N64 controller. All interactions with the room are performed by the LLM through MCP tools. Gameplay emerges from collaborating with the LLM, experimenting with available actions, and observing how the room responds.
@@ -35,3 +35,8 @@ Current setup:
 * A Windows XP VirtualBox environment for compiling N64 ROMs using [libultra](https://ultra64.ca/resources/software/)
 * [UNFLoader](https://github.com/buu342/N64-UNFLoader) to automatically load newly compiled ROMs onto an EverDrive X7
 * Testing primarily performed on an [Analogue 3D](https://www.analogue.co/3d)
+
+```bash
+uv sync --active --python $(which python)
+pre-commit install
+```
