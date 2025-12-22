@@ -32,6 +32,6 @@ Watchpoint is currently a solo project, and the development setup is tailored to
 
 Current setup:
 
-* A Windows XP VirtualBox environment for compiling N64 ROMs using `libultra`
+* A Windows XP VirtualBox environment for compiling N64 ROMs using [libultra](https://ultra64.ca/resources/software/)
 * [UNFLoader](https://github.com/buu342/N64-UNFLoader) to automatically load newly compiled ROMs onto an EverDrive X7
 * Testing primarily performed on an [Analogue 3D](https://www.analogue.co/3d)
