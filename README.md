@@ -8,6 +8,9 @@ At its core, Watchpoint is a verb–object discovery puzzle. Progress is made by
 
 ## How to Play
 
+> [!WARNING]
+> Right now you are only able to get in game and spawn squares of different color, size, rotation, and location. More to come!
+
 To play Watchpoint, you will need:
 
 1. A Nintendo 64 (or compatible hardware)
