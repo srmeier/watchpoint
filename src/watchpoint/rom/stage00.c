@@ -182,6 +182,11 @@ static Vtx shade_vtx[] =  {
 /* Vertex array for command squares - 4 vertices per square, max 32 squares */
 static Vtx square_vtx[MAX_SQUARES * 4];
 
+/* Matrix storage for each square - need separate matrices for each transformation */
+static Mtx square_modeling[MAX_SQUARES];
+static Mtx square_rotate[MAX_SQUARES];
+static Mtx square_translate[MAX_SQUARES];
+
 /* Draw a square  */
 void shadetri(Dynamic* dynamicp)
 {
@@ -207,7 +212,6 @@ void shadetri_square(Square* square, int square_index)
   Vtx* vtx;
   s16 half_size;
   s16 x, y, z;
-  static Mtx modeling;
 
   /* Get pointer to this square's vertices in the global array */
   vtx = &square_vtx[square_index * 4];
@@ -218,10 +222,10 @@ void shadetri_square(Square* square, int square_index)
   z = (s16)square->z;
   half_size = (s16)(square->size / 2);
 
-  /* Create vertices at square position */
-  vtx[0].v.ob[0] = x - half_size;
-  vtx[0].v.ob[1] = y - half_size;
-  vtx[0].v.ob[2] = z;
+  /* Create vertices centered at origin for proper rotation */
+  vtx[0].v.ob[0] = -half_size;
+  vtx[0].v.ob[1] = -half_size;
+  vtx[0].v.ob[2] = 0;
   vtx[0].v.flag = 0;
   vtx[0].v.tc[0] = 0;
   vtx[0].v.tc[1] = 0;
@@ -230,9 +234,9 @@ void shadetri_square(Square* square, int square_index)
   vtx[0].v.cn[2] = square->b;
   vtx[0].v.cn[3] = square->a;
 
-  vtx[1].v.ob[0] = x + half_size;
-  vtx[1].v.ob[1] = y - half_size;
-  vtx[1].v.ob[2] = z;
+  vtx[1].v.ob[0] = half_size;
+  vtx[1].v.ob[1] = -half_size;
+  vtx[1].v.ob[2] = 0;
   vtx[1].v.flag = 0;
   vtx[1].v.tc[0] = 0;
   vtx[1].v.tc[1] = 0;
@@ -241,9 +245,9 @@ void shadetri_square(Square* square, int square_index)
   vtx[1].v.cn[2] = square->b;
   vtx[1].v.cn[3] = square->a;
 
-  vtx[2].v.ob[0] = x + half_size;
-  vtx[2].v.ob[1] = y + half_size;
-  vtx[2].v.ob[2] = z;
+  vtx[2].v.ob[0] = half_size;
+  vtx[2].v.ob[1] = half_size;
+  vtx[2].v.ob[2] = 0;
   vtx[2].v.flag = 0;
   vtx[2].v.tc[0] = 0;
   vtx[2].v.tc[1] = 0;
@@ -252,9 +256,9 @@ void shadetri_square(Square* square, int square_index)
   vtx[2].v.cn[2] = square->b;
   vtx[2].v.cn[3] = square->a;
 
-  vtx[3].v.ob[0] = x - half_size;
-  vtx[3].v.ob[1] = y + half_size;
-  vtx[3].v.ob[2] = z;
+  vtx[3].v.ob[0] = -half_size;
+  vtx[3].v.ob[1] = half_size;
+  vtx[3].v.ob[2] = 0;
   vtx[3].v.flag = 0;
   vtx[3].v.tc[0] = 0;
   vtx[3].v.tc[1] = 0;
@@ -267,9 +271,14 @@ void shadetri_square(Square* square, int square_index)
   gSPMatrix(glistp++, OS_K0_TO_PHYSICAL(&gfx_dynamic.projection),
             G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
 
-  /* Use identity matrix (no rotation for now) */
-  guMtxIdent(&modeling);
-  gSPMatrix(glistp++, OS_K0_TO_PHYSICAL(&modeling),
+  /* Build transformation matrix: rotate then translate */
+  /* Use per-square matrix storage to avoid conflicts between squares */
+  guRotate(&square_rotate[square_index], (float)square->rotation, 0.0F, 0.0F, 1.0F);
+  guTranslate(&square_translate[square_index], (float)x, (float)y, (float)z);
+  guMtxCatL(&square_rotate[square_index], &square_translate[square_index],
+            &square_modeling[square_index]);
+
+  gSPMatrix(glistp++, OS_K0_TO_PHYSICAL(&square_modeling[square_index]),
             G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
 
   /* Load vertices */

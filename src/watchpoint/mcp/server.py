@@ -15,7 +15,6 @@ MSG_PONG = 0x504F4E47
 # Command IDs
 CMD_ADD_SQUARE = 0x01
 CMD_ECHO = 0x02
-CMD_ADD = 0x03
 
 
 @mcp.tool
