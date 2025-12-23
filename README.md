@@ -37,6 +37,9 @@ Current setup:
 * Testing primarily performed on an [Analogue 3D](https://www.analogue.co/3d)
 
 ```bash
-uv sync --active --python $(which python)
+uv sync --active --python $(which python) --dev
 pre-commit install
+claude mcp add --transport stdio watchpoint -- python src/watchpoint/mcp/server.py
+cd src/watchpoint/rom/ && make
+UNFLoader -b -l -r watchpoint.n64
 ```
