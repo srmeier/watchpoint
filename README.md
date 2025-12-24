@@ -6,10 +6,12 @@ The player does not control a character. Instead, they operate a remote security
 
 At its core, Watchpoint is a verb–object discovery puzzle. Progress is made by learning which actions can be applied to which objects, and in what order. The game provides no instructions, no UI text, and no explicit feedback. Understanding emerges entirely through observation and consequence.
 
-## How to Play
-
 > [!WARNING]
 > Right now you are only able to get in game and spawn squares of different color, size, rotation, and location. More to come!
+
+https://github.com/user-attachments/assets/8fc8504c-3b8b-4c14-b472-9bcef559a9d4
+
+## How to Play
 
 To play Watchpoint, you will need:
 
