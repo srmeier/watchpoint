@@ -37,7 +37,7 @@ Watchpoint is currently a solo project, and the development setup is tailored to
 
 Current setup:
 
-* A Windows XP VirtualBox environment for compiling N64 ROMs using [libultra](https://ultra64.ca/resources/software/)
+* Add `LIBDRAGON_DIR` environment variable pointing to the directory where you built [Libdragon](https://libdragon.dev/)
 * [UNFLoader](https://github.com/buu342/N64-UNFLoader) to automatically load newly compiled ROMs onto an EverDrive X7
 * Testing primarily performed on an [Analogue 3D](https://www.analogue.co/3d)
 
@@ -46,5 +46,5 @@ uv sync --active --python $(which python) --dev
 pre-commit install
 claude mcp add --transport stdio watchpoint -- python src/watchpoint/mcp/server.py
 cd src/watchpoint/rom/ && make
-UNFLoader -b -l -r watchpoint.n64
+UNFLoader -r watchpoint.z64 -d -p
 ```

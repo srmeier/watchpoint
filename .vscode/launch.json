@@ -13,8 +13,7 @@
             "miDebuggerArgs": "-readnow",
             "stopAtEntry": true,
             "sourceFileMap": {
-                "libdragon": "/home/srmeier/Projects/libdragon",
-                // "src/t3d": "../tiny3d/src/t3d"
+                "libdragon": "${env:LIBDRAGON_DIR}",
             }
         }
     ]

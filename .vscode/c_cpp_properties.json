@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "Libdragon N64",
+            "includePath": [
+                "${workspaceFolder}/src/watchpoint/rom/**",
+                "${env:LIBDRAGON_DIR}/include/**"
+            ],
+            "defines": [
+                "N64",
+                "LIBDRAGON",
+                "MIPS_64BIT",
+                "__mips64",
+                "USE_RDBTHREAD"
+            ],
+            "compilerPath": "mips64-elf-gcc",
+            "cStandard": "c11",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}
