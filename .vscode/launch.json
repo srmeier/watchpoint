@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "gdb",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "build/watchpoint.elf",
+            "miDebuggerServerAddress": "127.0.0.1:8080",
+            "miDebuggerPath": "/usr/local/bin/mips64-elf-gdb",
+            "MIMode": "gdb",
+            "cwd": "${workspaceFolder}/src/watchpoint/rom",
+            "miDebuggerArgs": "-readnow",
+            "stopAtEntry": true,
+            "sourceFileMap": {
+                "libdragon": "/home/srmeier/Projects/libdragon",
+                // "src/t3d": "../tiny3d/src/t3d"
+            }
+        }
+    ]
+}

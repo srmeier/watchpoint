@@ -1,38 +1,41 @@
-include $(ROOT)/usr/include/make/PRdefs
+# NOTE: For commands but no debugger
+# make
+# UNFLoader -r watchpoint.z64 -d -p
 
-N64KITDIR    = c:\nintendo\n64kit
-NUSYSINCDIR  = $(N64KITDIR)/nusys/include
-NUSYSLIBDIR  = $(N64KITDIR)/nusys/lib
+# NOTE: For commands with debugger
+# make D=1
+# UNFLoader -r watchpoint.z64 -g -p
 
-LIB          = $(ROOT)/usr/lib
-LPR          = $(LIB)/PR
-INC          = $(ROOT)/usr/include
-CC           = gcc
-LD           = ld
-MAKEROM      = mild
+BUILD_DIR=build
+include $(N64_INST)/include/n64.mk
 
-LCDEFS       = -DNU_DEBUG -DF3DEX_GBI_2
-LCINCS       = -I. -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
-LCOPTS       = -G 0
-LDFLAGS      = $(MKDEPOPT) -L$(LIB) -L$(NUSYSLIBDIR) -lnusys_d -lgultra_d -L$(GCCDIR)/mipse/lib -lkmc
+src = main.c debug.c
 
-OPTIMIZER    = -g
-APP          = watchpoint.out
-TARGETS      = watchpoint.n64
-HFILES       = graphic.h usb.h commands.h
-CODEFILES    = main.c stage00.c graphic.c gfxinit.c usb.c commands.c
-CODEOBJECTS  = $(CODEFILES:.c=.o)  $(NUSYSLIBDIR)/nusys.o
-DATAFILES    =
-DATAOBJECTS  = $(DATAFILES:.c=.o)
-CODESEGMENT  = codesegment.o
-OBJECTS      = $(CODESEGMENT) $(DATAOBJECTS)
+ifeq ($(D),1)
+N64_CFLAGS += -g -O0 -D USE_RDBTHREAD=1 -D DEBUG_RDP=0
+N64_LDFLAGS += -g
+endif
 
-default: $(TARGETS)
+assets_png = $(wildcard assets/*.png)
+assets_conv = $(addprefix filesystem/,$(notdir $(assets_png:%.png=%.sprite)))
 
-include $(COMMONRULES)
+MKSPRITE_FLAGS ?=
 
-$(CODESEGMENT):	$(CODEOBJECTS) Makefile
-	$(LD) -o $(CODESEGMENT) -r $(CODEOBJECTS) $(LDFLAGS)
+all: watchpoint.z64
 
-$(TARGETS):	$(OBJECTS)
-	$(MAKEROM) spec -I$(NUSYSINCDIR) -r $(TARGETS) -e $(APP)
+filesystem/%.sprite: assets/%.png
+	@mkdir -p $(dir $@)
+	@echo "    [SPRITE] $@"
+	@$(N64_MKSPRITE) -f RGBA16 --compress -o "$(dir $@)" "$<"
+
+$(BUILD_DIR)/watchpoint.dfs: $(assets_conv)
+$(BUILD_DIR)/watchpoint.elf: $(src:%.c=$(BUILD_DIR)/%.o)
+
+watchpoint.z64: N64_ROM_TITLE="Watchpoint"
+watchpoint.z64: $(BUILD_DIR)/watchpoint.dfs
+
+clean:
+	rm -rf $(BUILD_DIR) *.z64
+-include $(wildcard $(BUILD_DIR)/*.d)
+
+.PHONY: all clean

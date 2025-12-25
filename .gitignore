@@ -1,5 +1,5 @@
-watchpoint.n64
-.vscode/
+*.n64
+*.z64
 .python-version
 
 # Prerequisites
