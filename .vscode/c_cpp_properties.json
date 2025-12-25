@@ -13,7 +13,7 @@
                 "__mips64",
                 "USE_RDBTHREAD"
             ],
-            "compilerPath": "mips64-elf-gcc",
+            "compilerPath": "${env:N64_INST}/bin/mips64-elf-gcc",
             "cStandard": "c11",
             "intelliSenseMode": "linux-gcc-x64"
         }
