@@ -2036,8 +2036,6 @@ https://github.com/buu342/N64-UNFLoader
                 index = GET_BREAKPOINT_INDEX(*((u32*)addr))-1;
                 if (debug_bpoints[index].addr == (u32*)addr)
                 {
-                    int i;
-
                     // Remove the breakpoint
                     *((vu32*)addr) = debug_bpoints[index].instruction;
                         #ifndef LIBDRAGON

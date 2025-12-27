@@ -4,7 +4,8 @@
             "name": "Libdragon N64",
             "includePath": [
                 "${workspaceFolder}/src/watchpoint/rom/**",
-                "${env:LIBDRAGON_DIR}/include/**"
+                "${env:LIBDRAGON_DIR}/include/**",
+                "${env:TINY3D_DIR}/src/**"
             ],
             "defines": [
                 "N64",

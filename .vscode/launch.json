@@ -19,6 +19,7 @@
             ],
             "sourceFileMap": {
                 "libdragon": "${env:LIBDRAGON_DIR}",
+                "src/t3d": "${env:TINY3D_DIR}/src/t3d"
             }
         }
     ]
