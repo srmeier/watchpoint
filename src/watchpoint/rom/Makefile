@@ -14,10 +14,10 @@ BUILD_DIR=build
 include $(N64_INST)/include/n64.mk
 include $(N64_INST)/include/t3d.mk
 
-src = main.c debug.c render.c update.c commands.c
+src = main.c debug.c render.c update.c commands.c base64.c
 
 ifeq ($(D),1)
-N64_CFLAGS += -g -O0 -D USE_RDBTHREAD=1 -D DEBUG_RDP=0
+N64_CFLAGS += -g -O0 -D USE_RDBTHREAD=0 -D DEBUG_RDP=0
 N64_LDFLAGS += -g
 endif
 

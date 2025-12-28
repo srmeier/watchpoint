@@ -16,8 +16,8 @@ int main(void)
     dfs_init(DFS_DEFAULT_LOCATION);
     joypad_init();
 
-    cmd_init();
     debug_initialize();
+    debug_addcommand("cmd", "", process);
 
     while(1)
     {

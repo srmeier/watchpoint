@@ -1,6 +1,5 @@
 #include "engine.h"
 
-#define CMD_PING 0x01
 
 extern GameState state;
 
@@ -38,10 +37,11 @@ static void extract_string(char* dest, char* src, int* offset)
     dest[size] = '\0';
 }
 
-void cmd_ping()
+void cmd_ping(char* response)
 {
-    uint32_t pong = MSG_PONG;
-    usb_write(DATATYPE_RAWBINARY, &pong, sizeof(pong));
+    // char msg[0xFF] = "pong";
+    // usb_write(DATATYPE_RAWBINARY, &msg, strlen(msg));
+    strcpy(response, "pong");
 }
 
 void cmd_draw_square(char* data, int size)
@@ -95,68 +95,43 @@ void cmd_draw_square(char* data, int size)
     state.squares[i].active = 1;
 }
 
-void cmd_process(char* data, int size)
+char* process()
 {
+    state.pkts_received++;
+
     int cmd, offset = 0;
+    int size = debug_sizecommand();
+    size_t decoded_size;
 
     if (size < 1) {
-        return;
+        return "Invalid";
     }
 
-    cmd = extract_int32(data, &offset);
+    char data[0xFF] = {0};
+    debug_parsecommand(data);
+
+    memcpy(state.debug_str, data, size);
+    state.last_size = size;
+
+    char* decoded_data = (char*)base64_decode(data, size, &decoded_size);
+
+    char* response = (char*)malloc(0xFF);
+    strcpy(response, "nothing");
+
+    cmd = extract_int32(decoded_data, &offset);
 
     switch (cmd) {
         case CMD_PING:
-            cmd_ping();
-
-            extract_string(state.debug_str, data, &offset);
-
+            cmd_ping(response);
             break;
 
-        case CMD_DRAW_SQUARE:
-            cmd_draw_square(data, size);
-            break;
+        // case CMD_DRAW_SQUARE:
+        //     cmd_draw_square(decoded_data, decoded_size);
+        //     break;
 
         default:
             break;
     }
-}
 
-void cmd_poll()
-{
-    uint32_t header;
-    uint8_t datatype;
-    uint32_t size;
-    char command_buffer[512];
-
-    // Check for USB commands
-    header = usb_poll();
-    if (header != 0)
-    {
-        datatype = USBHEADER_GETTYPE(header);
-        size = USBHEADER_GETSIZE(header);
-
-        // Track last received values for debugging
-        state.last_datatype = datatype;
-        state.last_size = size;
-
-        // Handle binary commands
-        if (datatype == DATATYPE_RAWBINARY && size <= sizeof(command_buffer))
-        {
-            state.pkts_received++;
-
-            usb_read(command_buffer, size);
-            cmd_process(command_buffer, size);
-        }
-        else
-        {
-            // Unknown data, skip it
-            usb_skip(size);
-        }
-    }
-}
-
-void cmd_init()
-{
-    usb_initialize();
+    return response;
 }
