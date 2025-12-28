@@ -17,6 +17,7 @@ int main(void)
     joypad_init();
 
     cmd_init();
+    debug_initialize();
 
     while(1)
     {

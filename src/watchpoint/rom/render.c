@@ -15,6 +15,17 @@ void render()
     sprintf(tStr, "FPS: %.2f", state.fps);
     graphics_draw_text(disp, 5, 5, tStr);
 
+    // USB Debug
+    sprintf(tStr, "USB Pkts: %d", state.pkts_received);
+    graphics_draw_text(disp, 5, 20, tStr);
+
+    // USB Header Debug
+    sprintf(tStr, "Type: 0x%02X Size: %d", state.last_datatype, state.last_size);
+    graphics_draw_text(disp, 5, 35, tStr);
+
+    // Debug String
+    graphics_draw_text(disp, 5, 50, state.debug_str);
+
     // Draw squares
     for (int i = 0; i < MAX_SQUARES; i++) {
         if (state.squares[i].active) {
