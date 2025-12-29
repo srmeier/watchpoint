@@ -18,12 +18,12 @@
 typedef struct {
     int x;
     int y;
-    int w;
-    int h;
-    int r;
-    int g;
-    int b;
-    int a;
+    unsigned int w;
+    unsigned int h;
+    unsigned int r;
+    unsigned int g;
+    unsigned int b;
+    unsigned int a;
     int active;
 } Square;
 
@@ -38,6 +38,7 @@ typedef struct {
     // Debug
     int pkts_received;
     int last_size;
+    int last_cmd;
     char debug_str[0xFF];
 } GameState;
 

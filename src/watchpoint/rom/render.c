@@ -20,7 +20,7 @@ void render()
     graphics_draw_text(disp, 5, 20, tStr);
 
     // USB Header Debug
-    sprintf(tStr, "Size: %d", state.last_size);
+    sprintf(tStr, "Size: %d, Cmd: %d", state.last_size, state.last_cmd);
     graphics_draw_text(disp, 5, 35, tStr);
 
     // Debug String

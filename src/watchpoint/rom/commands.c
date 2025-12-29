@@ -4,7 +4,7 @@
 extern GameState state;
 char response[0xFF] = {0};
 
-static int extract_int32(char* data, int* offset)
+static int extract_int32(unsigned char* data, int* offset)
 {
     int value = (
         (data[*offset] << 24)     |
@@ -16,14 +16,19 @@ static int extract_int32(char* data, int* offset)
     return value;
 }
 
-static int extract_byte(char* data, int* offset)
+static unsigned int extract_uint32(unsigned char* data, int* offset)
 {
-    int value = (unsigned char)data[*offset];
+    return (unsigned int)extract_int32(data, offset);
+}
+
+static unsigned char extract_byte(unsigned char* data, int* offset)
+{
+    unsigned char value = data[*offset];
     *offset += 1;
     return value;
 }
 
-static void extract_bytes(char* dest, char* src, int* offset, int length)
+static void extract_bytes(char* dest, unsigned char* src, int* offset, int length)
 {
     for (int i = 0; i < length; i++) {
         dest[i] = src[*offset + i];
@@ -31,14 +36,14 @@ static void extract_bytes(char* dest, char* src, int* offset, int length)
     *offset += length;
 }
 
-static void extract_string(char* dest, char* src, int* offset)
+static void extract_string(char* dest, unsigned char* src, int* offset)
 {
     uint8_t size = extract_byte(src, offset);
     extract_bytes(dest, src, offset, size);
     dest[size] = '\0';
 }
 
-void cmd_ping(char* response, char* data, size_t size)
+void cmd_ping(char* response, unsigned char* data, size_t size)
 {
     if (size == 0) {
         strcpy(response, "pong");
@@ -50,16 +55,17 @@ void cmd_ping(char* response, char* data, size_t size)
     }
 }
 
-void cmd_draw_square(char* response, char* data, int size)
+void cmd_draw_square(char* response, unsigned char* data, int size)
 {
-    int x, y, w, h;
-    int r, g, b, a;
+    int x, y;
+    unsigned int w, h, r, g, b, a;
 
     /* Packet format:
-     * [x:4] [y:4] [w:4] [h:4] [r:1] [g:1] [b:1] [a:1]
-     * Total: 20 bytes
+     * [x:4] [y:4] [w:4] [h:4] [r:4] [g:4] [b:4] [a:4]
+     * Total: 32 bytes
      */
-    if (size < 20) {
+    if (size < 32) {
+        strcpy(response, "wrong number of bytes");
         return;
     }
 
@@ -69,12 +75,12 @@ void cmd_draw_square(char* response, char* data, int size)
     /* Extract values (big-endian) */
     x = extract_int32(data, &offset);
     y = extract_int32(data, &offset);
-    w = extract_int32(data, &offset);
-    h = extract_int32(data, &offset);
-    r = extract_byte(data, &offset);
-    g = extract_byte(data, &offset);
-    b = extract_byte(data, &offset);
-    a = extract_byte(data, &offset);
+    w = extract_uint32(data, &offset);
+    h = extract_uint32(data, &offset);
+    r = extract_uint32(data, &offset);
+    g = extract_uint32(data, &offset);
+    b = extract_uint32(data, &offset);
+    a = extract_uint32(data, &offset);
 
     /* Find inactive slot or reuse oldest */
     for (i = 0; i < MAX_SQUARES; i++) {
@@ -100,7 +106,7 @@ void cmd_draw_square(char* response, char* data, int size)
     state.squares[i].a = a;
     state.squares[i].active = 1;
 
-    sprintf(state.debug_str, "x:%d, y:%d, w:%d, h:%d\nr:%d, g:%d, b:%d, a:%d", x, y, w, h, r, g, b, a);
+    sprintf(state.debug_str, "x:%d, y:%d, w:%u, h:%u\nr:%u, g:%u, b:%u, a:%u", x, y, w, h, r, g, b, a);
     strcpy(response, "drawn");
 }
 
@@ -119,14 +125,15 @@ char* process()
     debug_parsecommand(data);
     data[size] = '\0';
 
-    memcpy(state.debug_str, data, size + 1);
+    sprintf(state.debug_str, "Data: %s", data);
     state.last_size = size;
 
     size_t decoded_size;
-    char* decoded_data = (char*)base64_decode(data, size, &decoded_size);
+    unsigned char* decoded_data = base64_decode(data, size, &decoded_size);
 
-    cmd = extract_int32(decoded_data, &offset);
+    cmd = extract_byte(decoded_data, &offset);
     strcpy(response, "nothing");
+    state.last_cmd = cmd;
 
     switch (cmd) {
         case CMD_PING:

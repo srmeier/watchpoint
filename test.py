@@ -22,17 +22,19 @@ while not ftdi.get_cts():
 
 # NOTE: Max 0xF0 characters in the "cmd" string argument and, based on my out-of-band protocol, I can send up to 0xB0 bytes of data
 
-# CMD_PING = 0x01
-# str_data = "".join(random.choices(string.ascii_letters + string.digits, k=10)).encode()
-# print(str_data)
+CMD_PING = 0x01
+str_data = "".join(
+    random.choices(string.ascii_letters + string.digits, k=10)
+).encode()
+print(str_data)
 # # NOTE: Custom pong response to verify data integrity
-# data = struct.pack(f">I{len(str_data)+1}p", CMD_PING, str_data)
-# # # NOTE: Just a pong response to verify connectivity
-# # data = struct.pack(f">I", CMD_PING)
+# data = struct.pack(f">B{len(str_data)+1}p", CMD_PING, str_data)
+# # NOTE: Just a pong response to verify connectivity
+# data = struct.pack(f">B", CMD_PING)
 
 CMD_DRAW_SQUARE = 0x02
 data = struct.pack(
-    ">IiiiiBBBB", CMD_DRAW_SQUARE, 50, 100, 50, 50, 255, 0, 0, 255
+    ">BiiIIIIII", CMD_DRAW_SQUARE, 50, 100, 50, 50, 255, 255, 0, 255
 )
 
 data = b64encode(data)
