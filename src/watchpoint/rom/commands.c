@@ -2,6 +2,7 @@
 
 
 extern GameState state;
+char response[0xFF] = {0};
 
 static int extract_int32(char* data, int* offset)
 {
@@ -37,28 +38,33 @@ static void extract_string(char* dest, char* src, int* offset)
     dest[size] = '\0';
 }
 
-void cmd_ping(char* response)
+void cmd_ping(char* response, char* data, size_t size)
 {
-    // char msg[0xFF] = "pong";
-    // usb_write(DATATYPE_RAWBINARY, &msg, strlen(msg));
-    strcpy(response, "pong");
+    if (size == 0) {
+        strcpy(response, "pong");
+    } else {
+        int offset = 0;
+        char msg[0xFF] = {0};
+        extract_string(msg, data, &offset);
+        strcpy(response, msg);
+    }
 }
 
-void cmd_draw_square(char* data, int size)
+void cmd_draw_square(char* response, char* data, int size)
 {
     int x, y, w, h;
     int r, g, b, a;
 
     /* Packet format:
-     * [CMD:1] [x:4] [y:4] [w:4] [h:4] [r:1] [g:1] [b:1] [a:1]
-     * Total: 21 bytes
+     * [x:4] [y:4] [w:4] [h:4] [r:1] [g:1] [b:1] [a:1]
+     * Total: 20 bytes
      */
-    if (size < 21) {
+    if (size < 20) {
         return;
     }
 
     int i;
-    int offset = 1;
+    int offset = 0;
 
     /* Extract values (big-endian) */
     x = extract_int32(data, &offset);
@@ -93,6 +99,9 @@ void cmd_draw_square(char* data, int size)
     state.squares[i].b = b;
     state.squares[i].a = a;
     state.squares[i].active = 1;
+
+    sprintf(state.debug_str, "x:%d, y:%d, w:%d, h:%d\nr:%d, g:%d, b:%d, a:%d", x, y, w, h, r, g, b, a);
+    strcpy(response, "drawn");
 }
 
 char* process()
@@ -101,37 +110,37 @@ char* process()
 
     int cmd, offset = 0;
     int size = debug_sizecommand();
-    size_t decoded_size;
 
-    if (size < 1) {
-        return "Invalid";
+    if (size < 1 || size > 0xF0) {
+        return "invalid";
     }
 
     char data[0xFF] = {0};
     debug_parsecommand(data);
+    data[size] = '\0';
 
-    memcpy(state.debug_str, data, size);
+    memcpy(state.debug_str, data, size + 1);
     state.last_size = size;
 
+    size_t decoded_size;
     char* decoded_data = (char*)base64_decode(data, size, &decoded_size);
 
-    char* response = (char*)malloc(0xFF);
-    strcpy(response, "nothing");
-
     cmd = extract_int32(decoded_data, &offset);
+    strcpy(response, "nothing");
 
     switch (cmd) {
         case CMD_PING:
-            cmd_ping(response);
+            cmd_ping(response, &decoded_data[offset], decoded_size - offset);
             break;
 
-        // case CMD_DRAW_SQUARE:
-        //     cmd_draw_square(decoded_data, decoded_size);
-        //     break;
+        case CMD_DRAW_SQUARE:
+            cmd_draw_square(response, &decoded_data[offset], decoded_size - offset);
+            break;
 
         default:
             break;
     }
 
+    free(decoded_data);
     return response;
 }
